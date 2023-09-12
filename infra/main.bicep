@@ -16,10 +16,18 @@ param principalId string = ''
 param createRoleForUser bool = true
 
 param acaExists bool = false
+param allowedOrigins string = ''
 
 param openAiResourceName string = ''
 param openAiResourceGroupName string = ''
-param openAiResourceGroupLocation string = ''
+@description('Location for the OpenAI resource group')
+@allowed(['canadaeast', 'eastus', 'francecentral', 'japaneast', 'northcentralus'])
+@metadata({
+  azd: {
+    type: 'location'
+  }
+})
+param openAiResourceGroupLocation string
 param openAiSkuName string = ''
 param openAiDeploymentCapacity int = 30
 
@@ -59,7 +67,7 @@ module openAi 'core/ai/cognitiveservices.bicep' = {
         }
         sku: {
           name: 'Standard'
-          capacity: 30
+          capacity: openAiDeploymentCapacity
         }
       }
     ]
@@ -103,6 +111,7 @@ module aca 'aca.bicep' = {
     containerRegistryName: containerApps.outputs.registryName
     openAiDeploymentName: openAiDeploymentName
     openAiEndpoint: openAi.outputs.endpoint
+    allowedOrigins: allowedOrigins
     exists: acaExists
   }
 }

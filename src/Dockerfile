@@ -8,6 +8,6 @@ RUN pip3 install -r requirements.txt
 
 COPY . .
 
-EXPOSE 50505
+EXPOSE 3100
 
 ENTRYPOINT ["gunicorn", "app:app"]

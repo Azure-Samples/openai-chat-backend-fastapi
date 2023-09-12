@@ -3,12 +3,12 @@ import os
 
 import azure.identity.aio
 import openai
-from quart import Blueprint, Response, current_app, render_template, request, stream_with_context
+import fastapi
+import pydantic
 
-bp = Blueprint("chat", __name__, template_folder="templates", static_folder="static")
+router = fastapi.APIRouter()
 
-
-@bp.before_app_serving
+@router.on_event("startup")
 async def configure_openai():
     openai.api_base = os.getenv("AZURE_OPENAI_ENDPOINT")
     openai.api_version = "2023-03-15-preview"
@@ -25,27 +25,24 @@ async def configure_openai():
         openai.api_key = token.token
 
 
-@bp.get("/")
-async def index():
-    return await render_template("index.html")
+class Message(pydantic.BaseModel):
+    content: str
 
 
-@bp.post("/chat")
-async def chat_handler():
-    request_message = (await request.get_json())["message"]
+@router.post("/chat")
+async def chat_handler(message: Message):
 
-    @stream_with_context
     async def response_stream():
         chat_coroutine = openai.ChatCompletion.acreate(
-            engine=os.getenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT", "chatgpt"),
+            deployment_id=os.getenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT", "chatgpt"),
+            model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": request_message},
+                {"role": "user", "content": message.content},
             ],
             stream=True,
         )
         async for event in await chat_coroutine:
-            current_app.logger.info(event)
             yield json.dumps(event, ensure_ascii=False) + "\n"
 
-    return Response(response_stream())
+    return fastapi.responses.StreamingResponse(response_stream())

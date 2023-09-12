@@ -1,8 +1,8 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
 
-name: simple-chatgpt-python
+name: chatgpt-backend-quart
 metadata:
-  template: simple-chatgpt-python@0.0.1-beta
+  template: chatgpt-backend-quart@0.0.1-beta
 services:
   aca:
     project: ./src

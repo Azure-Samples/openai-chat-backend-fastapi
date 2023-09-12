@@ -9,6 +9,7 @@ param serviceName string = 'aca'
 param exists bool
 param openAiDeploymentName string
 param openAiEndpoint string
+param allowedOrigins string = '' // comma separated list of allowed origins - no slash at the end!
 
 resource acaIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: identityName
@@ -43,8 +44,12 @@ module app 'core/host/container-app-upsert.bicep' = {
         name: 'AZURE_OPENAI_CLIENT_ID'
         value: acaIdentity.properties.clientId
       }
+      {
+        name: 'ALLOWED_ORIGINS'
+        value: allowedOrigins
+      }
     ]
-    targetPort: 50505
+    targetPort: 3100
   }
 }
 
