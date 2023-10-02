@@ -1,7 +1,8 @@
-# Build your own ChatGPT app
+# ChatGPT app - FastAPI backend
 
-This repository includes a simple Python [Quart](https://quart.palletsprojects.com/en/latest/)
-app that streams responses from ChatGPT to an HTML/JS frontend using [NDJSON](http://ndjson.org/)
+This repository includes a simple Python FastAPI app
+that streams responses from ChatGPT using [NDJSON](http://ndjson.org/).
+to an HTML/JS frontend using [NDJSON](http://ndjson.org/)
 over a [ReadableStream](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream).
 
 The repository is designed for use with [Docker containers](https://www.docker.com/), both for local development and deployment, and includes infrastructure files for deployment to [Azure Container Apps](https://learn.microsoft.com/azure/container-apps/overview). 🐳
@@ -63,30 +64,28 @@ This repo is set up for deployment on Azure Container Apps using the configurati
     azd deploy
     ```
 
-### Deployment with existing resources
+### Adding a frontend
 
-If you already have an OpenAI resource and would like to re-use it, first follow these steps.
+You can pair this backend with a frontend of your choice.
+The frontend needs to be able to read NDJSON from a ReadableStream,
+and send JSON to the backend with an HTTP POST request.
+The JSON schema should conform to the [Chat App Protocol](https://github.com/Azure/azureml_run_specification/blob/conversation-representation/configs/chat-protocol/sample-ChatConversation.yaml).
 
-1. Run `azd env new` to create a new environment. Provide a name that will be used in the name of *new* resources that are created.
-2. Run `azd env set` to specify the values for the existing OpenAI resource.
+Here are frontends that are known to work with this backend:
 
-   ```
-   azd env set AZURE_OPENAI_RESOURCE {name of OpenAI resource}
-   azd env set AZURE_OPENAI_RESOURCE_GROUP {name of resource group that it's inside}
-   azd env set AZURE_OPENAI_RESOURCE_GROUP_LOCATION {location for that group}
-   azd env set AZURE_OPENAI_SKU_NAME {name of the SKU, defaults to "S0"}
-   ```
-3. Then follow the steps for deployment above.
+- [ChatGPT app - VanillaJS frontend](https://github.com/pamelafox/chatgpt-frontend-vanilla)
+- [ChatGPT app - React frontend]() (coming soon)
+- [ChatGPT app - Web components frontend]() (coming soon)
 
-### CI/CD pipeline
+To pair a frontend with this backend, you'll need to:
 
-This project includes a Github workflow for deploying the resources to Azure
-on every push to main. That workflow requires several Azure-related authentication secrets
-to be stored as Github action secrets. To set that up, run:
+1. Deploy the backend using the steps above. Make sure to note the endpoint URI.
+2. Open the frontend project.
+3. Deploy the frontend using the steps in the frontend repo, following their instructions for setting the backend endpoint URI.
+4. Open this project again.
+5. Run `azd env set ALLOWED_ORIGINS "https://<your-frontend-url>"`. That URL (or list of URLs) will specified in the CORS policy for the backend to allow requests from your frontend.
+6. Run `azd up` to deploy the backend with the new CORS policy.
 
-```shell
-azd pipeline config
-```
 
 ### Costs
 
@@ -121,8 +120,3 @@ and see them instantly.
     ```
 
 4. Click 'http://0.0.0.0:50505' in the terminal, which should open a new tab in the browser. You may need to navigate to 'http://localhost:50505' if that URL doesn't work.
-
-
-## Getting help
-
-If you're working with this project and running into issues, please post in **Discussions**.
