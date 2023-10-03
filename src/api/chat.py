@@ -2,11 +2,12 @@ import json
 import os
 
 import azure.identity.aio
-import openai
 import fastapi
+import openai
 import pydantic
 
 router = fastapi.APIRouter()
+
 
 @router.on_event("startup")
 async def configure_openai():
@@ -31,7 +32,6 @@ class Message(pydantic.BaseModel):
 
 @router.post("/chat")
 async def chat_handler(message: Message):
-
     async def response_stream():
         chat_coroutine = openai.ChatCompletion.acreate(
             deployment_id=os.getenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT", "chatgpt"),

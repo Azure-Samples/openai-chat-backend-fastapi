@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 def create_app():
     env = Env()
-    
+
     if not os.getenv("RUNNING_IN_PRODUCTION"):
         logging.basicConfig(level=logging.DEBUG)
 

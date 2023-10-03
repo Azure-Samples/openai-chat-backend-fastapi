@@ -1,6 +1,7 @@
 import openai
 import pytest
 import pytest_asyncio
+from fastapi.testclient import TestClient
 
 from . import mock_cred
 from src import api
@@ -40,9 +41,7 @@ async def client(monkeypatch, mock_openai_chatcompletion, mock_defaultazurecrede
     monkeypatch.setenv("AZURE_OPENAI_ENDPOINT", "test-openai-service.openai.azure.com")
     monkeypatch.setenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT", "test-chatgpt")
 
-    quart_app = api.create_app()
+    fastapi_app = api.create_app()
 
-    async with quart_app.test_app() as test_app:
-        quart_app.config.update({"TESTING": True})
-
-        yield test_app.test_client()
+    with TestClient(fastapi_app) as test_client:
+        yield test_client
