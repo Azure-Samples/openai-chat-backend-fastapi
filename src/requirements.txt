@@ -1,5 +1,5 @@
 fastapi==0.104.1
-uvicorn[standard]==0.23.2
+uvicorn[standard]==0.24.0.post1
 gunicorn==21.2.0
 openai==0.28.1
 azure-identity==1.15.0
