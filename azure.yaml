@@ -1,8 +1,8 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
 
-name: chatgpt-backend-quart
+name: chatgpt-backend-fastapi
 metadata:
-  template: chatgpt-backend-quart@0.0.1-beta
+  template: chatgpt-backend-fastapi@0.0.1-beta
 services:
   aca:
     project: ./src
