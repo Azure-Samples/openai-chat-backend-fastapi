@@ -1,9 +1,6 @@
-# Chat GPT app - FastAPI backend
+# Chat with GPT models - FastAPI backend
 
-This repository includes a simple Python FastAPI app
-that streams responses from Azure OpenAI GPT models
-to an HTML/JS frontend using [NDJSON](http://ndjson.org/)
-over a [ReadableStream](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream).
+This repository includes a simple Python FastAPI app that streams responses from Azure OpenAI GPT models.
 
 The repository is designed for use with [Docker containers](https://www.docker.com/), both for local development and deployment, and includes infrastructure files for deployment to [Azure Container Apps](https://learn.microsoft.com/azure/container-apps/overview). 🐳
 
@@ -103,7 +100,7 @@ either by deleting the resource group in the Portal or running `azd down`.
 
 ## Local development (without Docker)
 
-Assuming you've run the steps in [Opening the project](#opening-the-project), you can now run the FastAPI app locally using the `uvicorn` server:
+Assuming you've run the steps in [Opening the project](#opening-the-project) and have run `azd up`, you can now run the FastAPI app locally using the `uvicorn` server:
 
 ```
 python3 -m uvicorn src.app:app
