@@ -25,7 +25,7 @@ def test_chat_nostream(client, mock_openai_chatcompletion, snapshot):
 
 
 @pytest.mark.asyncio
-async def test_openai_azure_key(monkeypatch):
+async def test_openai_azure_key(monkeypatch, mock_azure_credentials):
     monkeypatch.setenv("AZURE_OPENAI_KEY", "test-key")
     monkeypatch.setenv("AZURE_OPENAI_ENDPOINT", "test-openai-service.openai.azure.com")
     monkeypatch.setenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT", "test-chatgpt")
@@ -37,7 +37,7 @@ async def test_openai_azure_key(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_openai_azure_defaultcredential(monkeypatch):
+async def test_openai_azure_defaultcredential(monkeypatch, mock_azure_credentials):
     monkeypatch.setenv("AZURE_OPENAI_KEY", "")
     monkeypatch.setenv("AZURE_OPENAI_CLIENT_ID", "")
     monkeypatch.setenv("AZURE_OPENAI_ENDPOINT", "test-openai-service.openai.azure.com")
@@ -50,7 +50,7 @@ async def test_openai_azure_defaultcredential(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_openai_azure_managedidentity(monkeypatch):
+async def test_openai_azure_managedidentity(monkeypatch, mock_azure_credentials):
     monkeypatch.setenv("AZURE_OPENAI_KEY", "")
     monkeypatch.setenv("AZURE_OPENAI_CLIENT_ID", "test-client-id")
     monkeypatch.setenv("AZURE_OPENAI_ENDPOINT", "test-openai-service.openai.azure.com")

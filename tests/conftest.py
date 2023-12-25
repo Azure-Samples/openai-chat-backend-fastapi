@@ -1,5 +1,3 @@
-from collections import namedtuple
-
 import azure.core.credentials_async
 import openai
 import pytest
@@ -141,11 +139,8 @@ def mock_openai_chatcompletion(monkeypatch):
 
 @pytest.fixture
 def mock_azure_credentials(monkeypatch):
-    MockToken = namedtuple("MockToken", ["token", "expires_on", "value"])
-
     class MockAzureCredential(azure.core.credentials_async.AsyncTokenCredential):
-        async def get_token(self, uri):
-            return MockToken("", 9999999999, "")
+        pass
 
     monkeypatch.setattr("azure.identity.aio.DefaultAzureCredential", MockAzureCredential)
     monkeypatch.setattr("azure.identity.aio.ManagedIdentityCredential", MockAzureCredential)
