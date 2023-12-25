@@ -1,5 +1,6 @@
-import time
+from collections import namedtuple
 
+import azure.core.credentials_async
 import openai
 import pytest
 import pytest_asyncio
@@ -45,7 +46,7 @@ def mock_openai_chatcompletion(monkeypatch):
                             content_filter_results={},
                         )
                     ],
-                    created=int(time.time()),
+                    created=1703462735,
                     model="gpt-35-turbo",
                 ),
             ]
@@ -75,7 +76,7 @@ def mock_openai_chatcompletion(monkeypatch):
                                 },
                             )
                         ],
-                        created=int(time.time()),
+                        created=1703462735,
                         model="gpt-35-turbo",
                     )
                 )
@@ -92,7 +93,7 @@ def mock_openai_chatcompletion(monkeypatch):
                             content_filter_results={},
                         )
                     ],
-                    created=int(time.time()),
+                    created=1703462735,
                     model="gpt-35-turbo",
                 )
             )
@@ -138,8 +139,20 @@ def mock_openai_chatcompletion(monkeypatch):
     monkeypatch.setattr("openai.resources.chat.AsyncCompletions.create", mock_acreate)
 
 
+@pytest.fixture
+def mock_azure_credentials(monkeypatch):
+    MockToken = namedtuple("MockToken", ["token", "expires_on", "value"])
+
+    class MockAzureCredential(azure.core.credentials_async.AsyncTokenCredential):
+        async def get_token(self, uri):
+            return MockToken("", 9999999999, "")
+
+    monkeypatch.setattr("azure.identity.aio.DefaultAzureCredential", MockAzureCredential)
+    monkeypatch.setattr("azure.identity.aio.ManagedIdentityCredential", MockAzureCredential)
+
+
 @pytest_asyncio.fixture
-async def client(monkeypatch, mock_openai_chatcompletion):
+async def client(monkeypatch, mock_openai_chatcompletion, mock_azure_credentials):
     monkeypatch.setenv("AZURE_OPENAI_KEY", "")
     monkeypatch.setenv("AZURE_OPENAI_ENDPOINT", "test-openai-service.openai.azure.com")
     monkeypatch.setenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT", "test-chatgpt")

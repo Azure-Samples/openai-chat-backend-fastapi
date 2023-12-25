@@ -15,13 +15,11 @@ from .globals import clients
 async def lifespan(app: fastapi.FastAPI):
     client_args = {}
     if os.getenv("AZURE_OPENAI_KEY"):
-        print("Using Azure OpenAI API key", os.getenv("AZURE_OPENAI_KEY"))
         # Authenticate using an Azure OpenAI API key
         # This is generally discouraged, but is provided for developers
         # that want to develop locally inside the Docker container.
         client_args["api_key"] = os.getenv("AZURE_OPENAI_KEY")
     else:
-        print("Using Azure Managed Identity")
         if client_id := os.getenv("AZURE_OPENAI_CLIENT_ID"):
             # Authenticate using a user-assigned managed identity on Azure
             # See aca.bicep for value of AZURE_OPENAI_CLIENT_ID
