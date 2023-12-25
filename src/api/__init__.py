@@ -1,11 +1,11 @@
+import contextlib
 import logging
 import os
 
-import contextlib
 import azure.identity.aio
+import fastapi
 import openai
 from environs import Env
-import fastapi
 from fastapi.middleware.cors import CORSMiddleware
 
 from .globals import clients
@@ -31,7 +31,9 @@ async def lifespan(app: fastapi.FastAPI):
             # See https://docs.microsoft.com/azure/developer/python/azure-sdk-authenticate#defaultazurecredential
             # This will *not* work inside a Docker container.
             default_credential = azure.identity.aio.DefaultAzureCredential(exclude_shared_token_cache_credential=True)
-        client_args["azure_ad_token_provider"] = azure.identity.aio.get_bearer_token_provider(default_credential, "https://api.openai.com/.default")
+        client_args["azure_ad_token_provider"] = azure.identity.aio.get_bearer_token_provider(
+            default_credential, "https://api.openai.com/.default"
+        )
 
     clients["openai"] = openai.AsyncAzureOpenAI(
         api_version="2023-07-01-preview",
@@ -42,6 +44,7 @@ async def lifespan(app: fastapi.FastAPI):
     yield
 
     await clients["openai"].close()
+
 
 def create_app():
     env = Env()

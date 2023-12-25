@@ -7,6 +7,7 @@ from fastapi.testclient import TestClient
 
 from src import api
 
+
 @pytest.fixture
 def mock_openai_chatcompletion(monkeypatch):
     class AsyncChatCompletionIterator:
@@ -20,19 +21,33 @@ def mock_openai_chatcompletion(monkeypatch):
                     id="",
                     created=0,
                     model="",
-                    prompt_filter_results=[{"prompt_index": 0, "content_filter_results": {"hate": {"filtered": False, "severity": "safe"}, "self_harm": {"filtered": False, "severity": "safe"}, "sexual": {"filtered": False, "severity": "safe"}, "violence": {"filtered": False, "severity": "safe"}}}]
+                    prompt_filter_results=[
+                        {
+                            "prompt_index": 0,
+                            "content_filter_results": {
+                                "hate": {"filtered": False, "severity": "safe"},
+                                "self_harm": {"filtered": False, "severity": "safe"},
+                                "sexual": {"filtered": False, "severity": "safe"},
+                                "violence": {"filtered": False, "severity": "safe"},
+                            },
+                        }
+                    ],
                 ),
                 openai.types.chat.ChatCompletionChunk(
                     id="test-123",
                     object="chat.completion.chunk",
-                    choices=[openai.types.chat.chat_completion_chunk.Choice(
-                        delta=openai.types.chat.chat_completion_chunk.ChoiceDelta(content=None, role="assistant"),
-                        index=0, finish_reason=None,
-                        # Only Azure includes content_filter_results
-                        content_filter_results={}
-                    )],
+                    choices=[
+                        openai.types.chat.chat_completion_chunk.Choice(
+                            delta=openai.types.chat.chat_completion_chunk.ChoiceDelta(content=None, role="assistant"),
+                            index=0,
+                            finish_reason=None,
+                            # Only Azure includes content_filter_results
+                            content_filter_results={},
+                        )
+                    ],
                     created=int(time.time()),
-                    model="gpt-35-turbo")
+                    model="gpt-35-turbo",
+                ),
             ]
             answer_deltas = answer.split(" ")
             for answer_index, answer_delta in enumerate(answer_deltas):
@@ -41,33 +56,45 @@ def mock_openai_chatcompletion(monkeypatch):
                     answer_delta = " " + answer_delta
                 self.chunks.append(
                     openai.types.chat.ChatCompletionChunk(
-                            id="test-123",
-                            object="chat.completion.chunk",
-                            choices=[
-                                openai.types.chat.chat_completion_chunk.Choice(
-                                    delta=openai.types.chat.chat_completion_chunk.ChoiceDelta(role=None, content=answer_delta),
-                                    finish_reason=None,
-                                    index=0, logprobs=None,
-                                    # Only Azure includes content_filter_results
-                                    content_filter_results={"hate": {"filtered": False, "severity": "safe"}, "self_harm": {"filtered": False, "severity": "safe"}, "sexual": {"filtered": False, "severity": "safe"}, "violence": {"filtered": False, "severity": "safe"}}
-                                )
-                            ],
-                            created=int(time.time()),
-                            model="gpt-35-turbo",
-                        )
+                        id="test-123",
+                        object="chat.completion.chunk",
+                        choices=[
+                            openai.types.chat.chat_completion_chunk.Choice(
+                                delta=openai.types.chat.chat_completion_chunk.ChoiceDelta(
+                                    role=None, content=answer_delta
+                                ),
+                                finish_reason=None,
+                                index=0,
+                                logprobs=None,
+                                # Only Azure includes content_filter_results
+                                content_filter_results={
+                                    "hate": {"filtered": False, "severity": "safe"},
+                                    "self_harm": {"filtered": False, "severity": "safe"},
+                                    "sexual": {"filtered": False, "severity": "safe"},
+                                    "violence": {"filtered": False, "severity": "safe"},
+                                },
+                            )
+                        ],
+                        created=int(time.time()),
+                        model="gpt-35-turbo",
+                    )
                 )
             self.chunks.append(
                 openai.types.chat.ChatCompletionChunk(
                     id="test-123",
                     object="chat.completion.chunk",
-                    choices=[openai.types.chat.chat_completion_chunk.Choice(
-                        delta=openai.types.chat.chat_completion_chunk.ChoiceDelta(content=None, role=None),
-                        index=0, finish_reason="stop",
-                        # Only Azure includes content_filter_results
-                        content_filter_results={}
-                    )],
+                    choices=[
+                        openai.types.chat.chat_completion_chunk.Choice(
+                            delta=openai.types.chat.chat_completion_chunk.ChoiceDelta(content=None, role=None),
+                            index=0,
+                            finish_reason="stop",
+                            # Only Azure includes content_filter_results
+                            content_filter_results={},
+                        )
+                    ],
                     created=int(time.time()),
-                    model="gpt-35-turbo")
+                    model="gpt-35-turbo",
+                )
             )
 
         def __aiter__(self):
@@ -90,7 +117,9 @@ def mock_openai_chatcompletion(monkeypatch):
                 object="chat.completion",
                 choices=[
                     openai.types.chat.chat_completion.Choice(
-                        message=openai.types.chat.chat_completion.ChatCompletionMessage(role="assistant", content="The capital of France is Paris."),
+                        message=openai.types.chat.chat_completion.ChatCompletionMessage(
+                            role="assistant", content="The capital of France is Paris."
+                        ),
                         finish_reason="stop",
                         index=0,
                         logprobs=None,
@@ -103,7 +132,7 @@ def mock_openai_chatcompletion(monkeypatch):
                     completion_tokens=7,
                     prompt_tokens=24,
                     total_tokens=31,
-                )
+                ),
             )
 
     monkeypatch.setattr("openai.resources.chat.AsyncCompletions.create", mock_acreate)
