@@ -1,7 +1,7 @@
-# ChatGPT app - FastAPI backend
+# Chat GPT app - FastAPI backend
 
 This repository includes a simple Python FastAPI app
-that streams responses from ChatGPT using [NDJSON](http://ndjson.org/).
+that streams responses from Azure OpenAI GPT models
 to an HTML/JS frontend using [NDJSON](http://ndjson.org/)
 over a [ReadableStream](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream).
 
@@ -74,8 +74,6 @@ The JSON schema should conform to the [Chat App Protocol](https://github.com/Azu
 Here are frontends that are known to work with this backend:
 
 - [ChatGPT app - VanillaJS frontend](https://github.com/pamelafox/chatgpt-frontend-vanilla)
-- [ChatGPT app - React frontend]() (coming soon)
-- [ChatGPT app - Web components frontend]() (coming soon)
 
 To pair a frontend with this backend, you'll need to:
 
@@ -103,7 +101,15 @@ You can try the [Azure pricing calculator](https://azure.com/e/2176802ea14941e49
 ⚠️ To avoid unnecessary costs, remember to take down your app if it's no longer in use,
 either by deleting the resource group in the Portal or running `azd down`.
 
-## Local development
+## Local development (without Docker)
+
+Assuming you've run the steps in [Opening the project](#opening-the-project), you can now run the FastAPI app locally using the `uvicorn` server:
+
+```
+python3 -m uvicorn src.app:app
+```
+
+## Local development with Docker
 
 In addition to the `Dockerfile` that's used in production, this repo includes a `docker-compose.yaml` for
 local development which creates a volume for the app code. That allows you to make changes to the code
@@ -113,10 +119,16 @@ and see them instantly.
 
 2. Make sure that the `.env` file exists. The `azd up` deployment step should have created it.
 
+3. Add your Azure OpenAI API key to the `.env` file if not already there. You can find your key in the Azure Portal for the OpenAI resource, under _Keys and Endpoint_ tab.
+
+```
+AZURE_OPENAI_KEY="<your-key-here>"
+```
+
 3. Start the services with this command:
 
     ```shell
     docker-compose up --build
     ```
 
-4. Click 'http://0.0.0.0:50505' in the terminal, which should open a new tab in the browser. You may need to navigate to 'http://localhost:50505' if that URL doesn't work.
+4. Click 'http://0.0.0.0:3100' in the terminal, which should open a new tab in the browser. You may need to navigate to 'http://localhost:3100' if that URL doesn't work.
