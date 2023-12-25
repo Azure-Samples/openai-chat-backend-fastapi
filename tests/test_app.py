@@ -1,25 +1,31 @@
-import openai
+import json
+
 import pytest
 from fastapi.testclient import TestClient
 
-from . import mock_cred
 from src import api
 
 
-def test_chat_stream_text(client):
+def test_chat_stream(client, mock_openai_chatcompletion, snapshot):
     response = client.post(
         "/chat",
-        json={"content": "What is the capital of France?"},
+        json={"messages": [{"content": "What is the capital of France?", "role": "user"}], "stream": True},
     )
     assert response.status_code == 200
-    assert (
-        response.content
-        == b'{"choices": [{"delta": {"content": "The"}}]}\n{"choices": [{"delta": {"content": "capital"}}]}\n{"choices": [{"delta": {"content": "of"}}]}\n{"choices": [{"delta": {"content": "France"}}]}\n{"choices": [{"delta": {"content": "is"}}]}\n{"choices": [{"delta": {"content": "Paris."}}]}\n'  # noqa
+    snapshot.assert_match(response.content, "result.jsonlines")
+
+
+def test_chat_nostream(client, mock_openai_chatcompletion, snapshot):
+    response = client.post(
+        "/chat",
+        json={"messages": [{"content": "What is the capital of France?", "role": "user"}], "stream": False},
     )
+    assert response.status_code == 200
+    snapshot.assert_match(json.dumps(response.json(), indent=4), "result.json")
 
 
 @pytest.mark.asyncio
-async def test_openai_key(monkeypatch):
+async def test_openai_azure_key(monkeypatch, mock_azure_credentials):
     monkeypatch.setenv("AZURE_OPENAI_KEY", "test-key")
     monkeypatch.setenv("AZURE_OPENAI_ENDPOINT", "test-openai-service.openai.azure.com")
     monkeypatch.setenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT", "test-chatgpt")
@@ -27,18 +33,30 @@ async def test_openai_key(monkeypatch):
     fastapi_app = api.create_app()
 
     with TestClient(fastapi_app):
-        assert openai.api_type == "azure"
+        assert api.globals.clients["openai"].api_key is not None
 
 
 @pytest.mark.asyncio
-async def test_openai_managedidentity(monkeypatch):
-    monkeypatch.setenv("AZURE_OPENAI_CLIENT_ID", "test-client-id")
+async def test_openai_azure_defaultcredential(monkeypatch, mock_azure_credentials):
+    monkeypatch.setenv("AZURE_OPENAI_KEY", "")
+    monkeypatch.setenv("AZURE_OPENAI_CLIENT_ID", "")
     monkeypatch.setenv("AZURE_OPENAI_ENDPOINT", "test-openai-service.openai.azure.com")
     monkeypatch.setenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT", "test-chatgpt")
-
-    monkeypatch.setattr("azure.identity.aio.ManagedIdentityCredential", mock_cred.MockAzureCredential)
 
     fastapi_app = api.create_app()
 
     with TestClient(fastapi_app):
-        assert openai.api_type == "azure_ad"
+        assert api.globals.clients["openai"]._azure_ad_token_provider is not None
+
+
+@pytest.mark.asyncio
+async def test_openai_azure_managedidentity(monkeypatch, mock_azure_credentials):
+    monkeypatch.setenv("AZURE_OPENAI_KEY", "")
+    monkeypatch.setenv("AZURE_OPENAI_CLIENT_ID", "test-client-id")
+    monkeypatch.setenv("AZURE_OPENAI_ENDPOINT", "test-openai-service.openai.azure.com")
+    monkeypatch.setenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT", "test-chatgpt")
+
+    fastapi_app = api.create_app()
+
+    with TestClient(fastapi_app):
+        assert api.globals.clients["openai"]._azure_ad_token_provider is not None
