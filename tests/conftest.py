@@ -108,7 +108,6 @@ def mock_openai_chatcompletion(monkeypatch):
                 raise StopAsyncIteration
 
     async def mock_acreate(*args, **kwargs):
-        # Returned mocks do *not* include Azure-specific prompt_filter_results, content_filter_results
         if kwargs.get("stream"):
             return AsyncChatCompletionIterator("The capital of France is Paris.")
         else:
