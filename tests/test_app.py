@@ -60,3 +60,14 @@ async def test_openai_azure_managedidentity(monkeypatch, mock_azure_credentials)
 
     with TestClient(fastapi_app):
         assert api.globals.clients["openai"]._azure_ad_token_provider is not None
+
+
+@pytest.mark.asyncio
+async def test_openai_local(monkeypatch, mock_azure_credentials):
+    monkeypatch.setenv("LOCAL_OPENAI_ENDPOINT", "http://localhost:8080")
+
+    fastapi_app = api.create_app()
+
+    with TestClient(fastapi_app):
+        assert api.globals.clients["openai"].api_key == "no-key-required"
+        assert api.globals.clients["openai"].base_url == "http://localhost:8080"
