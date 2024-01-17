@@ -42,7 +42,7 @@ async def lifespan(app: fastapi.FastAPI):
                     exclude_shared_token_cache_credential=True
                 )
             client_args["azure_ad_token_provider"] = azure.identity.aio.get_bearer_token_provider(
-                default_credential, "https://api.openai.com/.default"
+                default_credential, "https://cognitiveservices.azure.com/.default"
             )
         clients["openai"] = openai.AsyncAzureOpenAI(
             api_version="2023-07-01-preview",
