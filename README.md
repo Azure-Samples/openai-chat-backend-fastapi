@@ -1,3 +1,19 @@
+---
+name: Chat with GPT models - FastAPI backend
+description: A simple Python FastAPI app that streams responses from Azure OpenAI GPT models
+languages:
+- python
+- bicep
+- azdeveloper
+products:
+- azure-openai
+- azure-container-apps
+- azure
+page_type: sample
+urlFragment: openai-chat-backend-fastapi
+---
+<!-- YAML front-matter schema: https://review.learn.microsoft.com/help/contribute/samples/process/onboarding?branch=main#supported-metadata-fields-for-readmemd -->
+
 # Chat with GPT models - FastAPI backend
 
 This repository includes a simple Python FastAPI app that streams responses from Azure OpenAI GPT models.
