@@ -147,6 +147,7 @@ output AZURE_OPENAI_CHATGPT_DEPLOYMENT string = openAiDeploymentName
 output AZURE_OPENAI_ENDPOINT string = openAi.outputs.endpoint
 output AZURE_OPENAI_KEY string = openAi.outputs.key
 output AZURE_OPENAI_RESOURCE string = openAi.outputs.name
+output AZURE_OPENAI_RESOURCE_LOCATION string = openAi.outputs.location
 output AZURE_OPENAI_RESOURCE_GROUP string = openAiResourceGroup.name
 output AZURE_OPENAI_SKU_NAME string = openAi.outputs.skuName
 
