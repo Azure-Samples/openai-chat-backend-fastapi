@@ -21,15 +21,18 @@ param allowedOrigins string = ''
 param openAiResourceName string = ''
 param openAiResourceGroupName string = ''
 @description('Location for the OpenAI resource group')
-@allowed(['canadaeast', 'eastus', 'francecentral', 'japaneast', 'northcentralus'])
+@allowed([ 'canadaeast', 'eastus', 'eastus2', 'francecentral', 'switzerlandnorth', 'uksouth', 'japaneast', 'northcentralus', 'australiaeast', 'swedencentral' ])
 @metadata({
   azd: {
     type: 'location'
   }
 })
-param openAiResourceGroupLocation string
+param openAiResourceLocation string
 param openAiSkuName string = ''
 param openAiDeploymentCapacity int = 30
+
+@description('Whether the deployment is running on GitHub Actions')
+param runningOnGh string = ''
 
 var resourceToken = toLower(uniqueString(subscription().id, name, location))
 var tags = { 'azd-env-name': name }
@@ -52,7 +55,7 @@ module openAi 'core/ai/cognitiveservices.bicep' = {
   scope: openAiResourceGroup
   params: {
     name: !empty(openAiResourceName) ? openAiResourceName : '${resourceToken}-cog'
-    location: !empty(openAiResourceGroupLocation) ? openAiResourceGroupLocation : location
+    location: !empty(openAiResourceLocation) ? openAiResourceLocation : location
     tags: tags
     sku: {
       name: !empty(openAiSkuName) ? openAiSkuName : 'S0'
@@ -117,7 +120,7 @@ module aca 'aca.bicep' = {
 }
 
 
-module openAiRoleUser 'core/security/role.bicep' = if (createRoleForUser) {
+module openAiRoleUser 'core/security/role.bicep' = if (createRoleForUser && empty(runningOnGh)) {
   scope: openAiResourceGroup
   name: 'openai-role-user'
   params: {
@@ -146,7 +149,6 @@ output AZURE_OPENAI_KEY string = openAi.outputs.key
 output AZURE_OPENAI_RESOURCE string = openAi.outputs.name
 output AZURE_OPENAI_RESOURCE_GROUP string = openAiResourceGroup.name
 output AZURE_OPENAI_SKU_NAME string = openAi.outputs.skuName
-output AZURE_OPENAI_RESOURCE_GROUP_LOCATION string = openAiResourceGroup.location
 
 output SERVICE_ACA_IDENTITY_PRINCIPAL_ID string = aca.outputs.SERVICE_ACA_IDENTITY_PRINCIPAL_ID
 output SERVICE_ACA_NAME string = aca.outputs.SERVICE_ACA_NAME

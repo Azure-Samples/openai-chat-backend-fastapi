@@ -27,6 +27,13 @@ jobs:
       AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
       AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      # project specific
+      AZURE_OPENAI_RESOURCE: ${{ vars.AZURE_OPENAI_RESOURCE }}
+      AZURE_OPENAI_RESOURCE_LOCATION: ${{ vars.AZURE_OPENAI_RESOURCE_LOCATION }}
+      AZURE_OPENAI_RESOURCE_GROUP: ${{ vars.AZURE_OPENAI_RESOURCE_GROUP }}
+      AZURE_OPENAI_SKU_NAME: ${{ vars.AZURE_OPENAI_SKU_NAME }}
+      ALLOWED_ORIGINS: ${{ vars.ALLOWED_ORIGINS }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4

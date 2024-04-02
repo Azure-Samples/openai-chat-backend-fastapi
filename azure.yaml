@@ -20,3 +20,10 @@ hooks:
         run: azd env get-values > .env
         interactive: true
         continueOnError: false
+pipeline:
+  variables:
+    - AZURE_OPENAI_RESOURCE
+    - AZURE_OPENAI_RESOURCE_LOCATION
+    - AZURE_OPENAI_RESOURCE_GROUP
+    - AZURE_OPENAI_SKU_NAME
+    - ALLOWED_ORIGINS
