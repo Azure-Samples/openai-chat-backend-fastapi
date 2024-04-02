@@ -120,7 +120,7 @@ module aca 'aca.bicep' = {
 }
 
 
-module openAiRoleUser 'core/security/role.bicep' = if (createRoleForUser && !runningOnGh) {
+module openAiRoleUser 'core/security/role.bicep' = if (createRoleForUser && empty(runningOnGh)) {
   scope: openAiResourceGroup
   name: 'openai-role-user'
   params: {
