@@ -2,8 +2,13 @@ services:
   app:
     build:
       context: ./src
-    env_file:
-      - .env
+    environment:
+      - AZURE_OPENAI_CHATGPT_DEPLOYMENT=${AZURE_OPENAI_CHATGPT_DEPLOYMENT}
+      - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+      - AZURE_CLIENT_ID=${servicePrincipal}
+      - AZURE_CLIENT_SECRET=${servicePrincipalPassword}
+      - AZURE_TENANT_ID=${servicePrincipalTenant}
     ports:
       - 3100:3100
     volumes:
