@@ -1,10 +1,26 @@
+---
+name: Chat with GPT models - FastAPI backend
+description: A simple Python FastAPI app that streams responses from Azure OpenAI GPT models
+languages:
+- python
+- bicep
+- azdeveloper
+products:
+- azure-openai
+- azure-container-apps
+- azure
+page_type: sample
+urlFragment: openai-chat-backend-fastapi
+---
+<!-- YAML front-matter schema: https://review.learn.microsoft.com/help/contribute/samples/process/onboarding?branch=main#supported-metadata-fields-for-readmemd -->
+
 # Chat with GPT models - FastAPI backend
 
 This repository includes a simple Python FastAPI app that streams responses from Azure OpenAI GPT models.
 
 The repository is designed for use with [Docker containers](https://www.docker.com/), both for local development and deployment, and includes infrastructure files for deployment to [Azure Container Apps](https://learn.microsoft.com/azure/container-apps/overview). 🐳
 
-![Architecture diagram: Azure Container Apps inside Container Apps Environment, connected to Container Registry with Container, connected to Managed Identity for Azure OpenAI](readme_diagram.png)
+![Architecture diagram: Azure Container Apps inside Container Apps Environment, connected to Container Registry with Container, connected to Managed Identity for Azure OpenAI](../readme_diagram.png)
 
 We recommend first going through the [deployment steps](#deployment) before running this app locally,
 since the local app needs credentials for Azure OpenAI to work properly.
