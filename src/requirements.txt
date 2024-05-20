@@ -1,4 +1,4 @@
-fastapi==0.110.2
+fastapi==0.111.0
 uvicorn[standard]==0.29.0
 gunicorn==22.0.0
 openai==1.30.1
