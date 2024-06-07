@@ -71,7 +71,7 @@ The JSON schema should conform to the [Chat App Protocol](https://aka.ms/chatpro
 
 Here are frontends that are known to work with this backend:
 
-- [ChatGPT app - VanillaJS frontend](https://github.com/pamelafox/chatgpt-frontend-vanilla)
+- [OpenAI Chat App Frontend - VanillaJS](https://github.com/Azure-Samples/openai-chat-frontend-vanillajs)
 
 To pair a frontend with this backend, you'll need to:
 
