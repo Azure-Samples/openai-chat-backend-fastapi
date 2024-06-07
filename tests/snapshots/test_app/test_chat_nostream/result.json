@@ -1,25 +1,8 @@
 {
-    "id": "test-123",
-    "choices": [
-        {
-            "finish_reason": "stop",
-            "index": 0,
-            "logprobs": null,
-            "message": {
-                "content": "The capital of France is Paris.",
-                "role": "assistant",
-                "function_call": null,
-                "tool_calls": null
-            }
-        }
-    ],
-    "created": 0,
-    "model": "test-model",
-    "object": "chat.completion",
-    "system_fingerprint": null,
-    "usage": {
-        "completion_tokens": 7,
-        "prompt_tokens": 24,
-        "total_tokens": 31
+    "message": {
+        "content": "The capital of France is Paris.",
+        "role": "assistant",
+        "function_call": null,
+        "tool_calls": null
     }
 }

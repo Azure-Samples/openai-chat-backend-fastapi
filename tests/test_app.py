@@ -8,8 +8,8 @@ from src import api
 
 def test_chat_stream(client, mock_openai_chatcompletion, snapshot):
     response = client.post(
-        "/chat",
-        json={"messages": [{"content": "What is the capital of France?", "role": "user"}], "stream": True},
+        "/chat/stream",
+        json={"messages": [{"content": "What is the capital of France?", "role": "user"}]},
     )
     assert response.status_code == 200
     snapshot.assert_match(response.content, "result.jsonlines")

@@ -82,7 +82,7 @@ This repo is set up for deployment on Azure Container Apps using the configurati
 You can pair this backend with a frontend of your choice.
 The frontend needs to be able to read NDJSON from a ReadableStream,
 and send JSON to the backend with an HTTP POST request.
-The JSON schema should conform to the [Chat App Protocol](https://github.com/Azure-Samples/ai-chat-app-protocol).
+The JSON schema should conform to the [Chat App Protocol](https://aka.ms/chatprotocol).
 
 Here are frontends that are known to work with this backend:
 
