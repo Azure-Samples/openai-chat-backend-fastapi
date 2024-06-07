@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 3100
 
-ENTRYPOINT ["gunicorn", "app:app"]
+ENTRYPOINT ["gunicorn", "api:create_app()"]
