@@ -53,7 +53,7 @@ This repo is set up for deployment on Azure Container Apps using the configurati
 
 1. Sign up for a [free Azure account](https://azure.microsoft.com/free/) and create an Azure Subscription.
 2. Request access to Azure OpenAI Service by completing the form at [https://aka.ms/oai/access](https://aka.ms/oai/access) and awaiting approval.
-2. Install the [Azure Developer CLI](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd). (If you open this repository in Codespaces or with the VS Code Dev Containers extension, that part will be done for you.)
+3. Install the [Azure Developer CLI](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd). (If you open this repository in Codespaces or with the VS Code Dev Containers extension, that part will be done for you.)
 
 ### Deployment from scratch
 
@@ -68,6 +68,7 @@ This repo is set up for deployment on Azure Container Apps using the configurati
     ```shell
     azd up
     ```
+
     It will prompt you to provide an `azd` environment name (like "chat-app"), select a subscription from your Azure account, and select a [location where OpenAI is available](https://azure.microsoft.com/explore/global-infrastructure/products-by-region/?products=cognitive-services&regions=all) (like "francecentral"). Then it will provision the resources in your account and deploy the latest code. If you get an error or timeout with deployment, changing the location can help, as there may be availability constraints for the OpenAI resource.
 
 3. When `azd` has finished deploying, you'll see an endpoint URI in the command output. Visit that URI, and you should see the chat app! 🎉
@@ -97,7 +98,6 @@ To pair a frontend with this backend, you'll need to:
 5. Run `azd env set ALLOWED_ORIGINS "https://<your-frontend-url>"`. That URL (or list of URLs) will specified in the CORS policy for the backend to allow requests from your frontend.
 6. Run `azd up` to deploy the backend with the new CORS policy.
 
-
 ### Costs
 
 Pricing varies per region and usage, so it isn't possible to predict exact costs for your usage.
@@ -118,7 +118,7 @@ either by deleting the resource group in the Portal or running `azd down`.
 
 Assuming you've run the steps in [Opening the project](#opening-the-project) and have run `azd up`, you can now run the FastAPI app locally using the `uvicorn` server:
 
-```
+```shell
 python3 -m uvicorn src.app:app --reload
 ```
 
