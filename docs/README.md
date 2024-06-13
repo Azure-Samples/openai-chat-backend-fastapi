@@ -154,14 +154,14 @@ and see them instantly.
 
 3. Add your Azure OpenAI API key to the `.env` file if not already there. You can find your key in the Azure Portal for the OpenAI resource, under _Keys and Endpoint_ tab.
 
-```
-AZURE_OPENAI_KEY="<your-key-here>"
-```
+    ```shell
+    AZURE_OPENAI_KEY="<your-key-here>"
+    ```
 
-3. Start the services with this command:
+4. Start the services with this command:
 
     ```shell
     docker-compose up --build
     ```
 
-4. Click 'http://0.0.0.0:3100' in the terminal, which should open a new tab in the browser. You may need to navigate to 'http://localhost:3100' if that URL doesn't work.
+5. Click 'http://0.0.0.0:3100' in the terminal, which should open a new tab in the browser. You may need to navigate to 'http://localhost:3100' if that URL doesn't work.
