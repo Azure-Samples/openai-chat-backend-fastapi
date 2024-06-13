@@ -103,7 +103,7 @@ either by deleting the resource group in the Portal or running `azd down`.
 Assuming you've run the steps in [Opening the project](#opening-the-project) and have run `azd up`, you can now run the FastAPI app locally using the `uvicorn` server:
 
 ```shell
-python3 -m uvicorn src.app:app --reload
+python -m uvicorn "src.api:create_app" --reload --factory
 ```
 
 ### Using a local LLM server
