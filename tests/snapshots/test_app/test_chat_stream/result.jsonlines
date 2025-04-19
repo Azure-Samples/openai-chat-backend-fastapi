@@ -1,8 +1,0 @@
-{"delta": {"content": null, "function_call": null, "role": "assistant", "tool_calls": null}}
-{"delta": {"content": "The", "function_call": null, "role": null, "tool_calls": null}}
-{"delta": {"content": " capital", "function_call": null, "role": null, "tool_calls": null}}
-{"delta": {"content": " of", "function_call": null, "role": null, "tool_calls": null}}
-{"delta": {"content": " France", "function_call": null, "role": null, "tool_calls": null}}
-{"delta": {"content": " is", "function_call": null, "role": null, "tool_calls": null}}
-{"delta": {"content": " Paris.", "function_call": null, "role": null, "tool_calls": null}}
-{"delta": {"content": null, "function_call": null, "role": null, "tool_calls": null}}

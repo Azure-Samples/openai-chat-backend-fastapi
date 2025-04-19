@@ -12,8 +12,8 @@ param location string
 @description('Id of the user or app to assign application roles')
 param principalId string = ''
 
-@description('Flag to decide where to create OpenAI role for current user')
-param createRoleForUser bool = true
+@description('Flag to decide whether to create a role assignment for the user and app')
+param useKeylessAuth bool
 
 param acaExists bool = false
 param allowedOrigins string = ''
@@ -50,30 +50,36 @@ resource openAiResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' exi
 var prefix = '${name}-${resourceToken}'
 
 var openAiDeploymentName = 'chatgpt'
-module openAi 'core/ai/cognitiveservices.bicep' = {
+module openAi 'br/public:avm/res/cognitive-services/account:0.7.2' = {
   name: 'openai'
   scope: openAiResourceGroup
   params: {
     name: !empty(openAiResourceName) ? openAiResourceName : '${resourceToken}-cog'
     location: !empty(openAiResourceLocation) ? openAiResourceLocation : location
     tags: tags
-    sku: {
-      name: !empty(openAiSkuName) ? openAiSkuName : 'S0'
+    kind: 'OpenAI'
+    customSubDomainName: !empty(openAiResourceName) ? openAiResourceName : '${resourceToken}-cog'
+    publicNetworkAccess: 'Enabled'
+    networkAcls: { // Should we start this as less secure?
+      defaultAction: 'Allow'
+      bypass: 'AzureServices'
     }
+    sku: !empty(openAiSkuName) ? openAiSkuName : 'S0'
     deployments: [
       {
         name: openAiDeploymentName
         model: {
           format: 'OpenAI'
-          name: 'gpt-35-turbo'
-          version: '0613'
+          name: 'gpt-4o-mini'
+          version: '2024-07-18'
         }
         sku: {
-          name: 'Standard'
+          name: 'GlobalStandard'
           capacity: openAiDeploymentCapacity
         }
       }
     ]
+    disableLocalAuth: useKeylessAuth
   }
 }
 
@@ -114,13 +120,14 @@ module aca 'aca.bicep' = {
     containerRegistryName: containerApps.outputs.registryName
     openAiDeploymentName: openAiDeploymentName
     openAiEndpoint: openAi.outputs.endpoint
+    openAiResourceName: openAi.outputs.name
     allowedOrigins: allowedOrigins
     exists: acaExists
   }
 }
 
 
-module openAiRoleUser 'core/security/role.bicep' = if (createRoleForUser && empty(runningOnGh)) {
+module openAiRoleUser 'core/security/role.bicep' = if (useKeylessAuth && empty(runningOnGh)) {
   scope: openAiResourceGroup
   name: 'openai-role-user'
   params: {
@@ -131,7 +138,7 @@ module openAiRoleUser 'core/security/role.bicep' = if (createRoleForUser && empt
 }
 
 
-module openAiRoleBackend 'core/security/role.bicep' = {
+module openAiRoleBackend 'core/security/role.bicep' = if (useKeylessAuth) {
   scope: openAiResourceGroup
   name: 'openai-role-backend'
   params: {
@@ -148,7 +155,6 @@ output AZURE_OPENAI_ENDPOINT string = openAi.outputs.endpoint
 output AZURE_OPENAI_RESOURCE string = openAi.outputs.name
 output AZURE_OPENAI_RESOURCE_LOCATION string = openAi.outputs.location
 output AZURE_OPENAI_RESOURCE_GROUP string = openAiResourceGroup.name
-output AZURE_OPENAI_SKU_NAME string = openAi.outputs.skuName
 
 output SERVICE_ACA_IDENTITY_PRINCIPAL_ID string = aca.outputs.SERVICE_ACA_IDENTITY_PRINCIPAL_ID
 output SERVICE_ACA_NAME string = aca.outputs.SERVICE_ACA_NAME

@@ -8,12 +8,17 @@ param containerRegistryName string
 param serviceName string = 'aca'
 param exists bool
 param openAiDeploymentName string
+param openAiResourceName string
 param openAiEndpoint string
 param allowedOrigins string = '' // comma separated list of allowed origins - no slash at the end!
 
 resource acaIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: identityName
   location: location
+}
+
+resource openAi 'Microsoft.CognitiveServices/accounts@2023-05-01' existing = {
+  name: openAiResourceName
 }
 
 
@@ -27,7 +32,17 @@ module app 'core/host/container-app-upsert.bicep' = {
     exists: exists
     containerAppsEnvironmentName: containerAppsEnvironmentName
     containerRegistryName: containerRegistryName
+    secrets: [
+      {
+        name: 'azure-openai-key'
+        value: openAi.listKeys().key1
+      }
+    ]
     env: [
+      {
+        name: 'AZURE_OPENAI_KEY'
+        secretRef: 'azure-openai-key'
+      }
       {
         name: 'AZURE_OPENAI_CHATGPT_DEPLOYMENT'
         value: openAiDeploymentName
