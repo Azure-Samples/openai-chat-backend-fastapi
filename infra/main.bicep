@@ -93,6 +93,34 @@ module logAnalyticsWorkspace 'core/monitor/loganalytics.bicep' = {
   }
 }
 
+// Virtual network for all resources
+module virtualNetwork 'core/network/virtual-network.bicep' = {
+  name: 'vnet'
+  scope: resourceGroup
+  params: {
+    name: '${prefix}-vnet'
+    location: location
+    tags: tags
+    addressPrefixes: [
+      '10.0.0.0/16'
+    ]
+    subnets: [
+      {
+        name: 'container-apps-subnet'
+        addressPrefix: '10.0.0.0/21'
+        /*delegations: [
+          {
+            name: 'Microsoft.App.environments'
+            properties: {
+              serviceName: 'Microsoft.App/environments'
+            }
+          }
+        ]*/
+      }
+    ]
+  }
+}
+
 // Container apps host (including container registry)
 module containerApps 'core/host/container-apps.bicep' = {
   name: 'container-apps'
@@ -104,6 +132,9 @@ module containerApps 'core/host/container-apps.bicep' = {
     containerAppsEnvironmentName: '${prefix}-containerapps-env'
     containerRegistryName: '${replace(prefix, '-', '')}registry'
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
+    // Reference the virtual network
+    vnetName: virtualNetwork.outputs.name
+    subnetName: virtualNetwork.outputs.subnets[0].name
   }
 }
 

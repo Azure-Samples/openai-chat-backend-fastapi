@@ -7,6 +7,11 @@ param containerRegistryName string
 param logAnalyticsWorkspaceName string
 param applicationInsightsName string = ''
 
+@description('Virtual network name for container apps environment.')
+param vnetName string = ''
+@description('Subnet name for container apps environment integration.')
+param subnetName string = ''
+
 module containerAppsEnvironment 'container-apps-environment.bicep' = {
   name: '${name}-container-apps-environment'
   params: {
@@ -15,6 +20,8 @@ module containerAppsEnvironment 'container-apps-environment.bicep' = {
     tags: tags
     logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
     applicationInsightsName: applicationInsightsName
+    vnetName: vnetName
+    subnetName: subnetName
   }
 }
 
