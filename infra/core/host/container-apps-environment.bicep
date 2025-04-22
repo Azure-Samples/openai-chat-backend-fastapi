@@ -27,7 +27,7 @@ resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2022-03-01'
     vnetConfiguration: (!empty(vnetName) && !empty(subnetName)) ? {
       // Use proper subnet resource ID format
       infrastructureSubnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, subnetName)
-      internal: true // TODO: Make this a parameter
+      internal: false // TODO: Make this a parameter
     } : null
   }
 }

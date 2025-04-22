@@ -9,7 +9,7 @@ param encryption object = {
   status: 'disabled'
 }
 param networkRuleBypassOptions string = 'AzureServices'
-param publicNetworkAccess string = 'Enabled'
+param publicNetworkAccess string = 'Disabled'  // Changed from 'Enabled' to 'Disabled' to enforce private endpoint access
 param sku object = {
   name: 'Basic'
 }
@@ -65,3 +65,4 @@ resource diagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' 
 
 output loginServer string = containerRegistry.properties.loginServer
 output name string = containerRegistry.name
+output resourceId string = containerRegistry.id

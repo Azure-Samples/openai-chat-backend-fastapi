@@ -50,6 +50,7 @@ resource openAiResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' exi
 var prefix = '${name}-${resourceToken}'
 
 var openAiDeploymentName = 'chatgpt'
+
 module openAi 'br/public:avm/res/cognitive-services/account:0.7.2' = {
   name: 'openai'
   scope: openAiResourceGroup
@@ -59,9 +60,9 @@ module openAi 'br/public:avm/res/cognitive-services/account:0.7.2' = {
     tags: tags
     kind: 'OpenAI'
     customSubDomainName: !empty(openAiResourceName) ? openAiResourceName : '${resourceToken}-cog'
-    publicNetworkAccess: 'Enabled'
-    networkAcls: { // Should we start this as less secure?
-      defaultAction: 'Allow'
+    publicNetworkAccess: 'Disabled'  // Changed to Disabled to enforce private endpoint access
+    networkAcls: {
+      defaultAction: 'Deny'
       bypass: 'AzureServices'
     }
     sku: !empty(openAiSkuName) ? openAiSkuName : 'S0'
@@ -83,18 +84,24 @@ module openAi 'br/public:avm/res/cognitive-services/account:0.7.2' = {
   }
 }
 
-module logAnalyticsWorkspace 'core/monitor/loganalytics.bicep' = {
+module logAnalyticsWorkspace 'br/public:avm/res/operational-insights/workspace:0.7.0' = {
   name: 'loganalytics'
   scope: resourceGroup
   params: {
     name: '${prefix}-loganalytics'
     location: location
     tags: tags
+    skuName: 'PerGB2018'
+    dataRetention: 30
+    publicNetworkAccessForIngestion: 'Disabled'
+    publicNetworkAccessForQuery: 'Disabled'
+    useResourcePermissions: true
   }
 }
 
+
 // Virtual network for all resources
-module virtualNetwork 'core/network/virtual-network.bicep' = {
+module virtualNetwork 'br/public:avm/res/network/virtual-network:0.6.1' = {
   name: 'vnet'
   scope: resourceGroup
   params: {
@@ -108,14 +115,199 @@ module virtualNetwork 'core/network/virtual-network.bicep' = {
       {
         name: 'container-apps-subnet'
         addressPrefix: '10.0.0.0/21'
-        /*delegations: [
-          {
-            name: 'Microsoft.App.environments'
-            properties: {
-              serviceName: 'Microsoft.App/environments'
+      }
+      {
+        name: 'private-endpoints-subnet'
+        addressPrefix: '10.0.8.0/24'
+        privateEndpointNetworkPolicies: 'Enabled'
+        privateLinkServiceNetworkPolicies: 'Enabled'
+      }
+    ]
+  }
+}
+
+// Azure OpenAI Private DNS Zone
+module openAiPrivateDnsZone 'br/public:avm/res/network/private-dns-zone:0.7.1' = {
+  name: 'openai-dns-zone'
+  scope: resourceGroup
+  params: {
+    name: 'privatelink.openai.azure.com'
+    tags: tags
+    virtualNetworkLinks: [
+      {
+        registrationEnabled: false
+        virtualNetworkResourceId: virtualNetwork.outputs.resourceId
+      }
+    ]
+  }
+}
+
+// Log Analytics Private DNS Zone
+module logAnalyticsPrivateDnsZone 'br/public:avm/res/network/private-dns-zone:0.7.1' = {
+  name: 'log-analytics-dns-zone'
+  scope: resourceGroup
+  params: {
+    name: 'privatelink.oms.opinsights.azure.com'
+    tags: tags
+    virtualNetworkLinks: [
+      {
+        registrationEnabled: false
+        virtualNetworkResourceId: virtualNetwork.outputs.resourceId
+      }
+    ]
+  }
+}
+
+// Additional Log Analytics Private DNS Zone for query endpoint
+module logAnalyticsQueryPrivateDnsZone 'br/public:avm/res/network/private-dns-zone:0.7.1' = {
+  name: 'log-analytics-query-dns-zone'
+  scope: resourceGroup
+  params: {
+    name: 'privatelink.ods.opinsights.azure.com'
+    tags: tags
+    virtualNetworkLinks: [
+      {
+        registrationEnabled: false
+        virtualNetworkResourceId: virtualNetwork.outputs.resourceId
+      }
+    ]
+  }
+}
+
+// Additional Log Analytics Private DNS Zone for agent service
+module logAnalyticsAgentPrivateDnsZone 'br/public:avm/res/network/private-dns-zone:0.7.1' = {
+  name: 'log-analytics-agent-dns-zone'
+  scope: resourceGroup
+  params: {
+    name: 'privatelink.agentsvc.azure-automation.net'
+    tags: tags
+    virtualNetworkLinks: [
+      {
+        registrationEnabled: false
+        virtualNetworkResourceId: virtualNetwork.outputs.resourceId
+      }
+    ]
+  }
+}
+
+// Azure Monitor Private DNS Zone
+module monitorPrivateDnsZone 'br/public:avm/res/network/private-dns-zone:0.7.1' = {
+  name: 'monitor-dns-zone'
+  scope: resourceGroup
+  params: {
+    name: 'privatelink.monitor.azure.com'
+    tags: tags
+    virtualNetworkLinks: [
+      {
+        registrationEnabled: false
+        virtualNetworkResourceId: virtualNetwork.outputs.resourceId
+      }
+    ]
+  }
+}
+
+// Storage Blob Private DNS Zone for Log Analytics solution packs
+module blobPrivateDnsZone 'br/public:avm/res/network/private-dns-zone:0.7.1' = {
+  name: 'blob-dns-zone'
+  scope: resourceGroup
+  params: {
+    name: 'privatelink.blob.core.windows.net'
+    tags: tags
+    virtualNetworkLinks: [
+      {
+        registrationEnabled: false
+        virtualNetworkResourceId: virtualNetwork.outputs.resourceId
+      }
+    ]
+  }
+}
+
+// Azure Container Registry Private DNS Zone
+module acrPrivateDnsZone 'br/public:avm/res/network/private-dns-zone:0.7.1' = {
+  name: 'acr-dns-zone'
+  scope: resourceGroup
+  params: {
+    name: 'privatelink.azurecr.io'
+    tags: tags
+    virtualNetworkLinks: [
+      {
+        registrationEnabled: false
+        virtualNetworkResourceId: virtualNetwork.outputs.resourceId
+      }
+    ]
+  }
+}
+
+module privateEndpoint 'br/public:avm/res/network/private-endpoint:0.11.0' = {
+  name: 'privateEndpointDeployment'
+  scope: resourceGroup
+  params: {
+    name: '${prefix}-openai-pe'
+    location: location
+    tags: tags
+    subnetResourceId: virtualNetwork.outputs.subnetResourceIds[1]
+    privateDnsZoneGroup: {
+      privateDnsZoneGroupConfigs: [
+        {
+          privateDnsZoneResourceId: openAiPrivateDnsZone.outputs.resourceId
+        }
+      ]
+    }
+    privateLinkServiceConnections: [
+      {
+        name: '${prefix}-openai-pe'
+        properties: {
+          groupIds: [
+            'account'
+          ]
+          privateLinkServiceId: openAi.outputs.resourceId
+        }
+      }
+    ]
+  }
+}
+
+// Azure Monitor Private Link Scope
+module monitorPrivateLinkScope 'br/public:avm/res/insights/private-link-scope:0.7.1' = {
+  name: 'monitor-private-link-scope'
+  scope: resourceGroup
+  params: {
+    name: '${prefix}-ampls'
+    location: 'global'
+    tags: tags
+    accessModeSettings: {
+      ingestionAccessMode: 'PrivateOnly'
+      queryAccessMode: 'PrivateOnly'
+    }
+    scopedResources: [
+      {
+        name: 'loganalytics-scoped-resource'
+        linkedResourceId: logAnalyticsWorkspace.outputs.resourceId
+      }
+    ]
+    privateEndpoints: [
+      {
+        name: 'loganalytics-private-endpoint'
+        subnetResourceId: virtualNetwork.outputs.subnetResourceIds[1]
+        privateDnsZoneGroup: {
+          privateDnsZoneGroupConfigs: [
+            {
+              privateDnsZoneResourceId: monitorPrivateDnsZone.outputs.resourceId
             }
-          }
-        ]*/
+            {
+              privateDnsZoneResourceId: logAnalyticsPrivateDnsZone.outputs.resourceId
+            }
+            {
+              privateDnsZoneResourceId: logAnalyticsQueryPrivateDnsZone.outputs.resourceId
+            }
+            {
+              privateDnsZoneResourceId: logAnalyticsAgentPrivateDnsZone.outputs.resourceId
+            }
+            {
+              privateDnsZoneResourceId: blobPrivateDnsZone.outputs.resourceId
+            }
+          ]
+        }
       }
     ]
   }
@@ -134,7 +326,37 @@ module containerApps 'core/host/container-apps.bicep' = {
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
     // Reference the virtual network
     vnetName: virtualNetwork.outputs.name
-    subnetName: virtualNetwork.outputs.subnets[0].name
+    subnetName: virtualNetwork.outputs.subnetNames[0]
+  }
+}
+
+// Container Registry Private Endpoint
+module acrPrivateEndpoint 'br/public:avm/res/network/private-endpoint:0.11.0' = {
+  name: 'acrPrivateEndpointDeployment'
+  scope: resourceGroup
+  params: {
+    name: '${prefix}-acr-pe'
+    location: location
+    tags: tags
+    subnetResourceId: virtualNetwork.outputs.subnetResourceIds[1]
+    privateDnsZoneGroup: {
+      privateDnsZoneGroupConfigs: [
+        {
+          privateDnsZoneResourceId: acrPrivateDnsZone.outputs.resourceId
+        }
+      ]
+    }
+    privateLinkServiceConnections: [
+      {
+        name: '${prefix}-acr-pe'
+        properties: {
+          groupIds: [
+            'registry'
+          ]
+          privateLinkServiceId: containerApps.outputs.registryId
+        }
+      }
+    ]
   }
 }
 
@@ -157,7 +379,6 @@ module aca 'aca.bicep' = {
   }
 }
 
-
 module openAiRoleUser 'core/security/role.bicep' = if (useKeylessAuth && empty(runningOnGh)) {
   scope: openAiResourceGroup
   name: 'openai-role-user'
@@ -167,7 +388,6 @@ module openAiRoleUser 'core/security/role.bicep' = if (useKeylessAuth && empty(r
     principalType: 'User'
   }
 }
-
 
 module openAiRoleBackend 'core/security/role.bicep' = if (useKeylessAuth) {
   scope: openAiResourceGroup
