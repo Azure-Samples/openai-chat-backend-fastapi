@@ -7,6 +7,29 @@ from fastapi.testclient import TestClient
 from src import api
 
 
+# Apply compatibility patch globally
+def patch_openai_httpx_compatibility():
+    """Fix httpx/openai compatibility issue by filtering out unsupported parameters"""
+    from openai._base_client import AsyncHttpxClientWrapper
+
+    original_init = AsyncHttpxClientWrapper.__init__
+
+    def patched_init(self, **kwargs):
+        # Remove 'proxies' parameter if present, as httpx uses 'proxy' (singular)
+        if "proxies" in kwargs:
+            proxy = kwargs.pop("proxies")
+            # Convert to httpx format if needed
+            if proxy and "proxy" not in kwargs:
+                kwargs["proxy"] = proxy
+        original_init(self, **kwargs)
+
+    AsyncHttpxClientWrapper.__init__ = patched_init
+
+
+# Apply the patch immediately
+patch_openai_httpx_compatibility()
+
+
 @pytest.fixture
 def mock_openai_chatcompletion(monkeypatch):
     class AsyncChatCompletionIterator:
