@@ -7,9 +7,14 @@ from fastapi.testclient import TestClient
 from src import api
 
 
-# Apply compatibility patch globally
+# Apply compatibility patch globally to fix openai library compatibility with httpx
 def patch_openai_httpx_compatibility():
-    """Fix httpx/openai compatibility issue by filtering out unsupported parameters"""
+    """Fix httpx/openai compatibility issue by filtering out unsupported parameters
+    
+    The openai library v1.33.0 passes 'proxies' parameter to httpx.AsyncClient,
+    but httpx v0.28.1 only accepts 'proxy' (singular). This patch converts the
+    parameter to the correct format.
+    """
     from openai._base_client import AsyncHttpxClientWrapper
 
     original_init = AsyncHttpxClientWrapper.__init__
