@@ -1,7 +1,10 @@
 {
     "message": {
         "content": "The capital of France is Paris.",
+        "refusal": null,
         "role": "assistant",
+        "annotations": null,
+        "audio": null,
         "function_call": null,
         "tool_calls": null
     }

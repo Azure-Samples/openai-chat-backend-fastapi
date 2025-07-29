@@ -37,7 +37,9 @@ def mock_openai_chatcompletion(monkeypatch):
                     object="chat.completion.chunk",
                     choices=[
                         openai.types.chat.chat_completion_chunk.Choice(
-                            delta=openai.types.chat.chat_completion_chunk.ChoiceDelta(content=None, role="assistant"),
+                            delta=openai.types.chat.chat_completion_chunk.ChoiceDelta(
+                                content=None, role="assistant", refusal=None
+                            ),
                             index=0,
                             finish_reason=None,
                             # Only Azure includes content_filter_results
@@ -60,7 +62,7 @@ def mock_openai_chatcompletion(monkeypatch):
                         choices=[
                             openai.types.chat.chat_completion_chunk.Choice(
                                 delta=openai.types.chat.chat_completion_chunk.ChoiceDelta(
-                                    role=None, content=answer_delta
+                                    role=None, content=answer_delta, refusal=None
                                 ),
                                 finish_reason=None,
                                 index=0,
@@ -84,7 +86,9 @@ def mock_openai_chatcompletion(monkeypatch):
                     object="chat.completion.chunk",
                     choices=[
                         openai.types.chat.chat_completion_chunk.Choice(
-                            delta=openai.types.chat.chat_completion_chunk.ChoiceDelta(content=None, role=None),
+                            delta=openai.types.chat.chat_completion_chunk.ChoiceDelta(
+                                content=None, role=None, refusal=None
+                            ),
                             index=0,
                             finish_reason="stop",
                             # Only Azure includes content_filter_results
@@ -116,7 +120,11 @@ def mock_openai_chatcompletion(monkeypatch):
                 choices=[
                     openai.types.chat.chat_completion.Choice(
                         message=openai.types.chat.chat_completion.ChatCompletionMessage(
-                            role="assistant", content="The capital of France is Paris."
+                            role="assistant",
+                            content="The capital of France is Paris.",
+                            refusal=None,
+                            annotations=None,
+                            audio=None,
                         ),
                         finish_reason="stop",
                         index=0,
