@@ -2,7 +2,9 @@
 
 name: chatgpt-backend-fastapi
 metadata:
-  template: chatgpt-backend-fastapi@0.0.1-beta
+  template: chatgpt-backend-fastapi@0.1.0-beta
+requiredVersions:
+  azd: ">= 1.17.0"
 services:
   aca:
     project: ./src
@@ -20,10 +22,3 @@ hooks:
         run: azd env get-values > .env
         interactive: true
         continueOnError: false
-pipeline:
-  variables:
-    - AZURE_OPENAI_RESOURCE
-    - AZURE_OPENAI_RESOURCE_LOCATION
-    - AZURE_OPENAI_RESOURCE_GROUP
-    - AZURE_OPENAI_SKU_NAME
-    - ALLOWED_ORIGINS
