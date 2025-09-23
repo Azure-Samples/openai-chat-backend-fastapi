@@ -46,7 +46,7 @@ async def test_openai_azure_defaultcredential(monkeypatch, mock_azure_credential
     fastapi_app = api.create_app()
 
     with TestClient(fastapi_app):
-        assert api.globals.clients["openai"]._azure_ad_token_provider is not None
+        assert api.globals.clients["openai"].api_key is not None
 
 
 @pytest.mark.asyncio
@@ -59,7 +59,7 @@ async def test_openai_azure_managedidentity(monkeypatch, mock_azure_credentials)
     fastapi_app = api.create_app()
 
     with TestClient(fastapi_app):
-        assert api.globals.clients["openai"]._azure_ad_token_provider is not None
+        assert api.globals.clients["openai"].api_key is not None
 
 
 @pytest.mark.asyncio
