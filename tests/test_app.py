@@ -1,12 +1,13 @@
 import json
 
+import openai
 import pytest
 from fastapi.testclient import TestClient
 
 from src import api
 
 
-def test_chat_stream(client, mock_openai_chatcompletion, snapshot):
+def test_chat_stream(client, mock_openai_responses, snapshot):
     response = client.post(
         "/chat/stream",
         json={"messages": [{"content": "What is the capital of France?", "role": "user"}]},
@@ -15,7 +16,7 @@ def test_chat_stream(client, mock_openai_chatcompletion, snapshot):
     snapshot.assert_match(response.content, "result.jsonlines")
 
 
-def test_chat_nostream(client, mock_openai_chatcompletion, snapshot):
+def test_chat_nostream(client, mock_openai_responses, snapshot):
     response = client.post(
         "/chat",
         json={"messages": [{"content": "What is the capital of France?", "role": "user"}], "stream": False},
@@ -39,27 +40,29 @@ async def test_openai_azure_key(monkeypatch, mock_azure_credentials):
 @pytest.mark.asyncio
 async def test_openai_azure_defaultcredential(monkeypatch, mock_azure_credentials):
     monkeypatch.setenv("AZURE_OPENAI_KEY", "")
-    monkeypatch.setenv("AZURE_OPENAI_CLIENT_ID", "")
+    monkeypatch.setenv("AZURE_CLIENT_ID", "")
     monkeypatch.setenv("AZURE_OPENAI_ENDPOINT", "test-openai-service.openai.azure.com")
     monkeypatch.setenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT", "test-chatgpt")
 
     fastapi_app = api.create_app()
 
     with TestClient(fastapi_app):
-        assert api.globals.clients["openai"]._azure_ad_token_provider is not None
+        assert isinstance(api.globals.clients["openai"], openai.AsyncOpenAI)
+        assert "/openai/v1/" in str(api.globals.clients["openai"].base_url)
 
 
 @pytest.mark.asyncio
 async def test_openai_azure_managedidentity(monkeypatch, mock_azure_credentials):
     monkeypatch.setenv("AZURE_OPENAI_KEY", "")
-    monkeypatch.setenv("AZURE_OPENAI_CLIENT_ID", "test-client-id")
+    monkeypatch.setenv("AZURE_CLIENT_ID", "test-client-id")
     monkeypatch.setenv("AZURE_OPENAI_ENDPOINT", "test-openai-service.openai.azure.com")
     monkeypatch.setenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT", "test-chatgpt")
 
     fastapi_app = api.create_app()
 
     with TestClient(fastapi_app):
-        assert api.globals.clients["openai"]._azure_ad_token_provider is not None
+        assert isinstance(api.globals.clients["openai"], openai.AsyncOpenAI)
+        assert "/openai/v1/" in str(api.globals.clients["openai"].base_url)
 
 
 @pytest.mark.asyncio

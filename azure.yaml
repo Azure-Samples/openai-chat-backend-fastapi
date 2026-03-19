@@ -10,6 +10,8 @@ services:
     project: ./src
     language: py
     host: containerapp
+    docker:
+      remoteBuild: true
 hooks:
     postprovision:
       windows:

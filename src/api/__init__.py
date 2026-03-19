@@ -30,9 +30,9 @@ async def lifespan(app: fastapi.FastAPI):
             # that want to develop locally inside the Docker container.
             client_args["api_key"] = os.getenv("AZURE_OPENAI_KEY")
         else:
-            if client_id := os.getenv("AZURE_OPENAI_CLIENT_ID"):
+            if client_id := os.getenv("AZURE_CLIENT_ID"):
                 # Authenticate using a user-assigned managed identity on Azure
-                # See aca.bicep for value of AZURE_OPENAI_CLIENT_ID
+                # See aca.bicep for value of AZURE_CLIENT_ID
                 default_credential = azure.identity.aio.ManagedIdentityCredential(client_id=client_id)
             else:
                 # Authenticate using the default Azure credential chain
@@ -41,12 +41,11 @@ async def lifespan(app: fastapi.FastAPI):
                 default_credential = azure.identity.aio.DefaultAzureCredential(
                     exclude_shared_token_cache_credential=True
                 )
-            client_args["azure_ad_token_provider"] = azure.identity.aio.get_bearer_token_provider(
+            client_args["api_key"] = azure.identity.aio.get_bearer_token_provider(
                 default_credential, "https://cognitiveservices.azure.com/.default"
             )
-        clients["openai"] = openai.AsyncAzureOpenAI(
-            api_version="2023-07-01-preview",
-            azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+        clients["openai"] = openai.AsyncOpenAI(
+            base_url=f"{os.getenv('AZURE_OPENAI_ENDPOINT', '').rstrip('/')}/openai/v1/",
             **client_args,
         )
 
