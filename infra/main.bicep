@@ -20,7 +20,7 @@ param allowedOrigins string = ''
 
 param openAiResourceName string = ''
 param openAiResourceGroupName string = ''
-@description('Location for the OpenAI resource group')
+@description('Location for the OpenAI resource group. See https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure for model availability by location.')
 @allowed([ 'canadaeast', 'eastus', 'eastus2', 'francecentral', 'switzerlandnorth', 'uksouth', 'japaneast', 'northcentralus', 'australiaeast', 'swedencentral' ])
 @metadata({
   azd: {
@@ -65,11 +65,11 @@ module openAi 'core/ai/cognitiveservices.bicep' = {
         name: openAiDeploymentName
         model: {
           format: 'OpenAI'
-          name: 'gpt-35-turbo'
-          version: '0613'
+          name: 'gpt-5.2'
+          version: '2025-12-11'
         }
         sku: {
-          name: 'Standard'
+          name: 'GlobalStandard'
           capacity: openAiDeploymentCapacity
         }
       }

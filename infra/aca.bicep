@@ -41,7 +41,7 @@ module app 'core/host/container-app-upsert.bicep' = {
         value: 'true'
       }
       {
-        name: 'AZURE_OPENAI_CLIENT_ID'
+        name: 'AZURE_CLIENT_ID'
         value: acaIdentity.properties.clientId
       }
       {
